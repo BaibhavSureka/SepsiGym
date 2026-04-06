@@ -12,10 +12,10 @@ from server.sepsis_environment import SepsisTreatmentEnvironment
 
 
 if OPENENV_AVAILABLE and create_app is not None:
-    app = create_app(SepsisTreatmentEnvironment, SepsisAction, SepsisObservation, env_name="sepsis-openenv")
+    app = create_app(SepsisTreatmentEnvironment, SepsisAction, SepsisObservation, env_name="sepsi-gym")
 else:
     environment = SepsisTreatmentEnvironment()
-    app = FastAPI(title="Sepsis OpenEnv", version="0.1.0")
+    app = FastAPI(title="SepsiGym", version="0.1.0")
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -75,7 +75,7 @@ def index() -> str:
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Sepsis OpenEnv</title>
+        <title>SepsiGym</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -110,7 +110,7 @@ def index() -> str:
     </head>
     <body>
         <main>
-            <h1>Sepsis OpenEnv</h1>
+            <h1>SepsiGym</h1>
             <p>This Hugging Face Space is running correctly.</p>
             <p>Available endpoints:</p>
             <ul>

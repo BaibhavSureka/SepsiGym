@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sepsis-openenv"
+name = "sepsi-gym"
 version = "0.1.0"
-description = "OpenEnv-compatible offline sepsis treatment environment built from the MIMIC-III demo cohort."
+description = "SepsiGym: A real-world clinical RL environment for sepsis diagnosis and treatment management using MIMIC-III trajectories."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

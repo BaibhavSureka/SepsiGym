@@ -102,8 +102,8 @@ class SepsisTreatmentEnvironment(Environment):
 
     def metadata(self) -> dict[str, Any]:
         return {
-            "name": "sepsis-openenv",
-            "description": "Sequential sepsis management environment with partial observability over logged ICU trajectories.",
+            "name": "sepsi-gym",
+            "description": "A real-world clinical RL environment for sepsis diagnosis and treatment management using MIMIC-III trajectories.",
             "tasks": self.available_tasks(),
             "selected_features": self.selected_features,
             "action_space": {

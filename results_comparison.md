@@ -1,10 +1,10 @@
-# ID3QNE Sepsis OpenEnv Results
+# ID3QNE SepsiGym Results
 
-| Policy | Mean Score | Density | Steps | Safety |
-|--------|------------|---------|-------|--------|
-| Heuristic | 0.9867 | 1.00 | 9.7 | 100% |
-| LLM (gpt-4o-mini) | 0.9867 | 1.00 | 9.7 | 100% |
-| ID3QNE | 0.9867 | 1.00 | 9.7 | 100% |
+| Policy            | Mean Score | Density | Steps | Safety |
+| ----------------- | ---------- | ------- | ----- | ------ |
+| Heuristic         | 0.9867     | 1.00    | 9.7   | 100%   |
+| LLM (gpt-4o-mini) | 0.9867     | 1.00    | 9.7   | 100%   |
+| ID3QNE            | 0.9867     | 1.00    | 9.7   | 100%   |
 
 ## Statistical Validation
 

@@ -1,5 +1,5 @@
 ---
-title: Sepsis OpenEnv
+title: SepsiGym
 colorFrom: blue
 colorTo: red
 sdk: docker
@@ -11,18 +11,18 @@ tags:
   - sepsis
 ---
 
-# Sepsis OpenEnv
+# SepsiGym
 
-Sepsis OpenEnv is a real-world sequential sepsis management environment for the OpenEnv hackathon workflow. It exposes a standard `reset()` / `step()` / `state()` loop and evaluates how well an agent gathers information, chooses treatment, and manages a logged ICU trajectory under partial observability.
+SepsiGym is a real-world sequential sepsis management environment for training and evaluating RL agents. It exposes a standard `reset()` / `step()` / `state()` loop and evaluates how well an agent gathers information, chooses treatment, and manages a logged ICU trajectory under partial observability.
 
-The environment is designed to satisfy the Round 1 requirements:
+**Key Features:**
 
-- real-world task: ICU sepsis workup and treatment decisions
-- typed models for action, observation, and state
-- 3 graded tasks: `easy`, `medium`, `hard`
-- dense rewards with safety penalties and partial-progress signal
-- reproducible root-level `inference.py`
-- Dockerized server for local and Hugging Face deployment
+- 🏥 Real-world clinical task: ICU sepsis diagnosis and treatment management
+- 🧠 3 graded difficulty levels: Easy → Medium → Hard
+- 🎯 Dense reward function with partial-progress signals and safety penalties
+- 📊 Built from MIMIC-III de-identified ICU data
+- 🤖 Supports any agent (LLM-based, RL, heuristic policies)
+- 🐳 Fully Dockerized and ready for HuggingFace Spaces
 
 ## What The Environment Simulates
 
@@ -39,7 +39,7 @@ The environment advances along a logged patient trajectory and rewards the agent
 - selecting treatment plans that fit the hidden severity pattern in the logged stay
 - avoiding obviously unsafe escalation or under-treatment
 
-This is an offline environment built from a compact processed bundle derived from the MIMIC-III demo cohort. It is inspired by the WD3QNE sepsis-treatment paper, but the environment is purpose-built for OpenEnv evaluation rather than paper reproduction.
+This offline environment is built from real de-identified patient trajectories from MIMIC-III. SepsiGym presents a partial-observability challenge where agents must strategically request diagnostic labs and choose appropriate treatments based on incomplete information.
 
 ## Tasks
 
@@ -173,13 +173,13 @@ Current deterministic baseline scores from the local run:
 Build:
 
 ```bash
-docker build -t sepsis-openenv .
+docker build -t sepsi-gym .
 ```
 
 Run:
 
 ```bash
-docker run -p 7860:7860 sepsis-openenv
+docker run -p 7860:7860 sepsi-gym
 ```
 
 The container exposes a working `/health` endpoint and responds to `/reset`.
@@ -210,10 +210,10 @@ The following checks have been run locally:
 - `python validate_local.py`: passed
 - `python inference.py`: passed
 - `openenv validate`: passed
-- `docker build -t sepsis-openenv .`: passed
-- `docker run -p 7860:7860 sepsis-openenv`: passed
+- `docker build -t sepsi-gym .`: passed
+- `docker run -p 7860:7860 sepsi-gym`: passed
 - `/health` and `/metadata`: passed
 
 ## Inspiration
 
-Wu, X., Li, R., He, Z. et al. *A value-based deep reinforcement learning model with human expertise in optimal treatment of sepsis.* npj Digital Medicine 6, 15 (2023). https://doi.org/10.1038/s41746-023-00755-5
+Wu, X., Li, R., He, Z. et al. _A value-based deep reinforcement learning model with human expertise in optimal treatment of sepsis._ npj Digital Medicine 6, 15 (2023). https://doi.org/10.1038/s41746-023-00755-5

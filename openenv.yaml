@@ -1,6 +1,6 @@
-name: sepsis-openenv
+name: sepsi-gym
 version: 0.1.0
-description: Sequential sepsis management environment with partial observability over logged ICU trajectories.
+description: A real-world clinical RL environment for sepsis diagnosis and treatment management using MIMIC-III trajectories. Agents must strategically request labs and choose treatments under partial observability.
 entrypoint: server.app:app
 client: client.SepsisTreatmentEnv
 action_model: models.SepsisAction
