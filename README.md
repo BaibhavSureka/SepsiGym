@@ -3,7 +3,7 @@ title: Sepsis OpenEnv
 colorFrom: blue
 colorTo: red
 sdk: docker
-app_port: 8000
+app_port: 7860
 tags:
   - openenv
   - healthcare
@@ -134,14 +134,14 @@ Run the official OpenEnv validator:
 Start the environment server locally:
 
 ```bash
-.venv\Scripts\python.exe -m uvicorn server.app:app --host 0.0.0.0 --port 8000
+.venv\Scripts\python.exe -m uvicorn server.app:app --host 0.0.0.0 --port 7860
 ```
 
 Quick checks:
 
 ```bash
-curl http://127.0.0.1:8000/health
-curl http://127.0.0.1:8000/metadata
+curl http://127.0.0.1:7860/health
+curl http://127.0.0.1:7860/metadata
 ```
 
 ## Baseline Inference
@@ -179,7 +179,7 @@ docker build -t sepsis-openenv .
 Run:
 
 ```bash
-docker run -p 8000:8000 sepsis-openenv
+docker run -p 7860:7860 sepsis-openenv
 ```
 
 The container exposes a working `/health` endpoint and responds to `/reset`.
@@ -211,7 +211,7 @@ The following checks have been run locally:
 - `python inference.py`: passed
 - `openenv validate`: passed
 - `docker build -t sepsis-openenv .`: passed
-- `docker run -p 8000:8000 sepsis-openenv`: passed
+- `docker run -p 7860:7860 sepsis-openenv`: passed
 - `/health` and `/metadata`: passed
 
 ## Inspiration
