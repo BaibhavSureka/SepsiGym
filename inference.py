@@ -82,6 +82,28 @@ def format_action(action: SepsisAction) -> str:
     return f"monitor(suspect_sepsis={str(action.suspect_sepsis).lower()})"
 
 
+def format_error(error: str | None) -> str:
+    if not error:
+        return "null"
+    return re.sub(r"\s+", " ", str(error)).strip() or "null"
+
+
+def log_start(task: str, env: str, model: str) -> None:
+    print(f"[START] task={task} env={env} model={model}")
+
+
+def log_step(step: int, action: str, reward: float, done: bool, error: str | None) -> None:
+    print(
+        f"[STEP] step={step} action={action} reward={reward:.2f} "
+        f"done={str(done).lower()} error={format_error(error)}"
+    )
+
+
+def log_end(success: bool, steps: int, score: float, rewards: list[float]) -> None:
+    rewards_repr = ",".join(f"{reward:.2f}" for reward in rewards)
+    print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_repr}")
+
+
 def curriculum_action(observation: SepsisObservation) -> SepsisAction | None:
     task_id = observation.task_id
     step_index = observation.step_index
@@ -590,10 +612,7 @@ def run_task(
     success = False
     step_count = 0
 
-    print(
-        f"[START] task={task_id} env={ENV_NAME} policy={policy_mode} "
-        f"model={model_name or policy_mode}"
-    )
+    log_start(task=task_id, env=ENV_NAME, model=model_name or policy_mode)
 
     try:
         for step_number in range(1, MAX_STEPS_PER_TASK[task_id] + 1):
@@ -609,9 +628,12 @@ def run_task(
             if error_message:
                 policy_errors.append(error_message)
             step_count = step_number
-            print(
-                f"[STEP] step={step_number} source={source} action={formatted_action} "
-                f"reward={reward:.2f} done={str(result.done).lower()} error=null"
+            log_step(
+                step=step_number,
+                action=formatted_action,
+                reward=reward,
+                done=result.done,
+                error=error_message,
             )
             if result.done:
                 success = True
@@ -622,8 +644,8 @@ def run_task(
     finally:
         state = env.state()
         env.close()
-        rewards_repr = ",".join(f"{reward:.2f}" for reward in reward_trace)
-        print(f"[END] success={str(success).lower()} steps={step_count} rewards={rewards_repr}")
+        score = float(final_info.get("metrics", {}).get("score", 0.0))
+        log_end(success=success, steps=step_count, score=score, rewards=reward_trace)
 
     metrics = final_info.get("metrics", {})
     dense_metrics = compute_dense_reward_metrics(
