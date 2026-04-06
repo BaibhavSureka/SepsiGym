@@ -17,65 +17,6 @@ else:
     environment = SepsisTreatmentEnvironment()
     app = FastAPI(title="Sepsis OpenEnv", version="0.1.0")
 
-    @app.get("/", response_class=HTMLResponse)
-    def index() -> str:
-        return """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>Sepsis OpenEnv</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 0;
-                    padding: 2rem;
-                    background: #f6f8fb;
-                    color: #1f2937;
-                }
-                main {
-                    max-width: 720px;
-                    margin: 0 auto;
-                    background: white;
-                    border-radius: 16px;
-                    padding: 2rem;
-                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-                }
-                h1 {
-                    margin-top: 0;
-                }
-                code {
-                    background: #eef2ff;
-                    padding: 0.1rem 0.35rem;
-                    border-radius: 6px;
-                }
-                ul {
-                    line-height: 1.7;
-                }
-                a {
-                    color: #2563eb;
-                }
-            </style>
-        </head>
-        <body>
-            <main>
-                <h1>Sepsis OpenEnv</h1>
-                <p>This Hugging Face Space is running correctly.</p>
-                <p>Available endpoints:</p>
-                <ul>
-                    <li><a href="/health">/health</a></li>
-                    <li><a href="/metadata">/metadata</a></li>
-                    <li><a href="/schema">/schema</a></li>
-                    <li><code>POST /reset</code></li>
-                    <li><code>POST /step</code></li>
-                    <li><a href="/state">/state</a></li>
-                </ul>
-            </main>
-        </body>
-        </html>
-        """
-
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
@@ -124,6 +65,66 @@ else:
     @app.get("/state")
     def state() -> dict:
         return environment.state.model_dump()
+
+
+@app.get("/", response_class=HTMLResponse)
+def index() -> str:
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Sepsis OpenEnv</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 2rem;
+                background: #f6f8fb;
+                color: #1f2937;
+            }
+            main {
+                max-width: 720px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 16px;
+                padding: 2rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            }
+            h1 {
+                margin-top: 0;
+            }
+            code {
+                background: #eef2ff;
+                padding: 0.1rem 0.35rem;
+                border-radius: 6px;
+            }
+            ul {
+                line-height: 1.7;
+            }
+            a {
+                color: #2563eb;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>Sepsis OpenEnv</h1>
+            <p>This Hugging Face Space is running correctly.</p>
+            <p>Available endpoints:</p>
+            <ul>
+                <li><a href="/health">/health</a></li>
+                <li><a href="/metadata">/metadata</a></li>
+                <li><a href="/schema">/schema</a></li>
+                <li><code>POST /reset</code></li>
+                <li><code>POST /step</code></li>
+                <li><a href="/state">/state</a></li>
+            </ul>
+        </main>
+    </body>
+    </html>
+    """
 
 
 def main() -> None:
