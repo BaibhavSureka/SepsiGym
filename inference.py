@@ -784,9 +784,16 @@ def main() -> None:
     try:
         args = parse_args()
         OUTPUT_DIR.mkdir(exist_ok=True)
-        api_base_url = os.getenv("API_BASE_URL", DEFAULT_API_BASE_URL)
-        model_name = os.getenv("MODEL_NAME", DEFAULT_MODEL_NAME)
-        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN")
+        # Use validator-provided API_BASE_URL and API_KEY (LiteLLM proxy)
+        api_base_url = os.getenv("API_BASE_URL")
+        api_key = os.getenv("API_KEY")
+        model_name = os.getenv("MODEL_NAME")
+        
+        # Fallback to defaults only if not provided by validator
+        if not api_base_url:
+            api_base_url = DEFAULT_API_BASE_URL
+        if not model_name:
+            model_name = DEFAULT_MODEL_NAME
 
         llm_client = None
         if api_base_url and model_name and api_key:
