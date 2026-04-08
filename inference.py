@@ -572,22 +572,25 @@ def compute_dense_reward_metrics(
     action_history: list[str],
 ) -> dict[str, float | int]:
     nonzero_rewards = [reward for reward in reward_trace if reward != 0]
+    reward_density = (
+        sum(1 for reward in reward_trace if reward > 0) / len(reward_trace)
+        if reward_trace
+        else 0.5
+    )
+    episode_length_efficiency = step_count / max_steps if max_steps else 0.5
+    positive_reward_ratio = sum(1 for reward in reward_trace if reward > 0) / max(1, len(nonzero_rewards))
 
     return {
         "steps_taken": step_count,
         "total_reward": float(sum(reward_trace)),
         "reward_count": len(reward_trace),
         "positive_rewards_count": sum(1 for reward in reward_trace if reward > 0),
-        "reward_density": float(sum(1 for reward in reward_trace if reward > 0) / len(reward_trace))
-        if reward_trace
-        else 0.0,
+        "reward_density": normalize_task_score(reward_density),
         "avg_reward_per_step": float(np.mean(reward_trace)) if reward_trace else 0.0,
         "reward_variance": float(np.var(reward_trace)) if reward_trace else 0.0,
         "max_single_reward": float(max(reward_trace)) if reward_trace else 0.0,
-        "episode_length_efficiency": float(step_count / max_steps) if max_steps else 0.0,
-        "positive_reward_ratio": float(
-            sum(1 for reward in reward_trace if reward > 0) / max(1, len(nonzero_rewards))
-        ),
+        "episode_length_efficiency": normalize_task_score(episode_length_efficiency),
+        "positive_reward_ratio": normalize_task_score(positive_reward_ratio),
         "unique_actions": len(set(action_history)),
         "action_entropy": compute_action_entropy(action_history),
     }
@@ -682,7 +685,7 @@ def run_task(
         
         if not final_info:
             final_info = {}
-        score = float(final_info.get("metrics", {}).get("score", 0.0))
+        score = normalize_task_score(final_info.get("metrics", {}).get("score", 0.5))
         log_end(success=success, steps=step_count, score=score, rewards=reward_trace)
 
     try:
@@ -698,16 +701,16 @@ def run_task(
             "task_id": task_id,
             "episode_id": state.episode_id,
             "score": normalized_score,
-            "avg_reward": metrics.get("avg_reward", 0.0),
-            "detection": metrics.get("detection", 0.0),
-            "lab_workup": metrics.get("lab_workup", 0.0),
-            "treatment": metrics.get("treatment", 0.0),
-            "timeliness": metrics.get("timeliness", 0.0),
-            "stability": metrics.get("stability", 0.0),
-            "safety": metrics.get("safety", 0.0),
-            "safety_violation_rate": metrics.get("safety_violation_rate", 0.0),
+            "avg_reward": normalize_task_score(metrics.get("avg_reward", 0.5)),
+            "detection": normalize_task_score(metrics.get("detection", 0.5)),
+            "lab_workup": normalize_task_score(metrics.get("lab_workup", 0.5)),
+            "treatment": normalize_task_score(metrics.get("treatment", 0.5)),
+            "timeliness": normalize_task_score(metrics.get("timeliness", 0.5)),
+            "stability": normalize_task_score(metrics.get("stability", 0.5)),
+            "safety": normalize_task_score(metrics.get("safety", 0.5)),
+            "safety_violation_rate": normalize_task_score(metrics.get("safety_violation_rate", 0.5)),
             "safety_violations": metrics.get("safety_violations", 0),
-            "outcome": metrics.get("outcome", 0.0),
+            "outcome": normalize_task_score(metrics.get("outcome", 0.5)),
             "steps": metrics.get("steps", state.step_count),
             "episode_index": episode_index,
             "policy_mode": policy_mode,
@@ -723,16 +726,16 @@ def run_task(
             "task_id": task_id,
             "episode_id": getattr(state, 'episode_id', 'unknown'),
             "score": normalize_task_score(0.0),
-            "avg_reward": 0.0,
-            "detection": 0.0,
-            "lab_workup": 0.0,
-            "treatment": 0.0,
-            "timeliness": 0.0,
-            "stability": 0.0,
-            "safety": 0.0,
-            "safety_violation_rate": 0.0,
+            "avg_reward": normalize_task_score(0.0),
+            "detection": normalize_task_score(0.0),
+            "lab_workup": normalize_task_score(0.0),
+            "treatment": normalize_task_score(0.0),
+            "timeliness": normalize_task_score(0.0),
+            "stability": normalize_task_score(0.0),
+            "safety": normalize_task_score(0.0),
+            "safety_violation_rate": normalize_task_score(0.0),
             "safety_violations": 0,
-            "outcome": 0.0,
+            "outcome": normalize_task_score(0.0),
             "steps": step_count,
             "episode_index": episode_index,
             "policy_mode": policy_mode,
@@ -743,12 +746,12 @@ def run_task(
             "total_reward": 0.0,
             "reward_count": 0,
             "positive_rewards_count": 0,
-            "reward_density": 0.0,
+            "reward_density": normalize_task_score(0.0),
             "avg_reward_per_step": 0.0,
             "reward_variance": 0.0,
             "max_single_reward": 0.0,
-            "episode_length_efficiency": 0.0,
-            "positive_reward_ratio": 0.0,
+            "episode_length_efficiency": normalize_task_score(0.0),
+            "positive_reward_ratio": normalize_task_score(0.0),
             "unique_actions": 0,
             "action_entropy": 0.0,
         }
@@ -776,20 +779,24 @@ def summarize_runs(
     return {
         "results": all_results,
         "episode_summaries": per_episode_results,
-        "mean_score": round(float(np.mean([item.get("score", 0.0) for item in all_results])), 4),
-        "score_std": round(float(np.std([item.get("score", 0.0) for item in all_results])), 4),
-        "mean_score_std": round(float(np.std([item.get("mean_score", 0.0) for item in per_episode_results])), 4)
+        "mean_score": normalize_task_score(np.mean([item.get("score", 0.5) for item in all_results])),
+        "score_std": normalize_task_score(np.std([item.get("score", 0.5) for item in all_results])),
+        "mean_score_std": normalize_task_score(np.std([item.get("mean_score", 0.5) for item in per_episode_results]))
         if per_episode_results
-        else 0.0,
-        "mean_reward_density": round(float(np.mean([item.get("reward_density", 0.0) for item in all_results])), 4),
-        "global_reward_density": round(float(total_positive_rewards / total_reward_count), 4)
+        else normalize_task_score(0.0),
+        "mean_reward_density": normalize_task_score(np.mean([item.get("reward_density", 0.5) for item in all_results])),
+        "global_reward_density": normalize_task_score(total_positive_rewards / total_reward_count)
         if total_reward_count
-        else 0.0,
+        else normalize_task_score(0.0),
         "mean_avg_reward_per_step": round(float(np.mean([item.get("avg_reward_per_step", 0.0) for item in all_results])), 4),
         "mean_reward_variance": round(float(np.mean([item.get("reward_variance", 0.0) for item in all_results])), 4),
-        "mean_positive_reward_ratio": round(float(np.mean([item.get("positive_reward_ratio", 0.0) for item in all_results])), 4),
+        "mean_positive_reward_ratio": normalize_task_score(
+            np.mean([item.get("positive_reward_ratio", 0.5) for item in all_results])
+        ),
         "mean_action_entropy": round(float(np.mean([item.get("action_entropy", 0.0) for item in all_results])), 4),
-        "safety_violation_rate": round(float(total_safety_violations / total_steps), 4) if total_steps else 0.0,
+        "safety_violation_rate": normalize_task_score(total_safety_violations / total_steps)
+        if total_steps
+        else normalize_task_score(0.0),
         "total_runs": len(all_results),
         "episodes": len(per_episode_results),
         "requested_policy": requested_policy,
@@ -869,11 +876,13 @@ def main() -> None:
                 episode_summaries.append(
                     {
                         "episode_index": episode_index,
-                        "mean_score": round(float(np.mean([item.get("score", 0.0) for item in episode_results])), 4),
-                        "mean_reward_density": round(float(np.mean([item.get("reward_density", 0.0) for item in episode_results])), 4),
-                        "safety_violation_rate": round(float(episode_safety_violations / episode_steps), 4)
+                        "mean_score": normalize_task_score(np.mean([item.get("score", 0.5) for item in episode_results])),
+                        "mean_reward_density": normalize_task_score(
+                            np.mean([item.get("reward_density", 0.5) for item in episode_results])
+                        ),
+                        "safety_violation_rate": normalize_task_score(episode_safety_violations / episode_steps)
                         if episode_steps
-                        else 0.0,
+                        else normalize_task_score(0.0),
                     }
                 )
             except Exception as exc:

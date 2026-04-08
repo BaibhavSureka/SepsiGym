@@ -49,7 +49,7 @@ Task definitions live in `tasks.py`.
 - `medium`: diagnosis plus early treatment initiation after iterative lab requests
 - `hard`: full sepsis management across longer unstable trajectories with stabilization and outcome pressure
 
-Each task has a deterministic grader in `graders.py` that returns a score in `[0.0, 1.0]`.
+Each task has a deterministic grader in `graders.py` that returns a score strictly inside `(0.0, 1.0)`.
 
 ## Action Space
 
@@ -163,10 +163,10 @@ The script:
 
 Current deterministic baseline scores from the local run:
 
-- `easy`: `1.0`
-- `medium`: `1.0`
-- `hard`: `0.96`
-- mean score: `0.9867`
+- `easy`: `0.999`
+- `medium`: `0.999`
+- `hard`: `0.9592`
+- mean score: `0.9857`
 
 ## Docker
 
